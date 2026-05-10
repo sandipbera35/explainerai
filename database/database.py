@@ -1,4 +1,3 @@
-from sqlalchemy import create_engine
 DATABASE_URL = "postgresql+asyncpg://sandipbera35:1221@localhost:5432/explainerai"
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
