@@ -10,8 +10,6 @@ engine = create_async_engine(
     DATABASE_URL,
     echo=True,
     future=True,
-    autocommit=False,
-    autoflush=False,
 )
 
 AsyncSessionLocal = async_sessionmaker(
@@ -19,3 +17,6 @@ AsyncSessionLocal = async_sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False,
 )
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session
