@@ -3,7 +3,9 @@ from sqlalchemy import String
 from datetime import datetime
 
 from database.base import Base
+from pydantic import ConfigDict
 
+model_config = ConfigDict(from_attributes=True)
 
 class User(Base):
     __tablename__ = "users"

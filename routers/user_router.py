@@ -1,22 +1,20 @@
 from fastapi import APIRouter , Depends
-from auth.auth_gourd import auth_guard
+from services.dependency.repo_dependecy import get_user_repository, get_current_profile
 from database.database import get_db
+from models.user_models import ProfileResponse, UserCreate, UserResponse
 
 userRouter = APIRouter()
 
-from services.user_repo import create_user, get_users
-from models.user_models import User
-from models.user_models import User as UserRequest , CurrentUser
-
-
-
-@userRouter.get("/users")
-async def list_users(db = Depends(get_db), profile: CurrentUser = Depends(auth_guard), limit: int = 10, offset: int = 0):
+@userRouter.get("/users" , response_model=list[UserResponse] )
+def list_users(db = Depends(get_db), profile: ProfileResponse = Depends(get_current_profile), limit: int = 10, offset: int = 0):
+    print("Profile from auth guard:", profile.first_name)
     
-    print("Profile from auth guard:", profile)
-    return await get_users(db)
+    ur =get_user_repository(db)
+    return ur.get_users(limit=limit, offset=offset)
 
-@userRouter.post("/users")
-async def add_user(user: UserRequest,profile = Depends(auth_guard), db = Depends(get_db) ):
-    print("Profile from auth guard:", profile)
-    return await create_user(db, user)
+# @userRouter.post("/users", response_model=UserResponse)
+# def add_user(user: UserCreate,profile: ProfileResponse = Depends(get_current_profile), db = Depends(get_db) ):
+#     print("Profile from auth guard:", profile.first_name)
+#     ur = get_user_repository(db)
+    
+#     return ur.create_user(user)

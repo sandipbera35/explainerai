@@ -1,22 +1,18 @@
-DATABASE_URL = "postgresql+asyncpg://sandipbera35:1221@localhost:5432/explainerai"
-from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    async_sessionmaker,
-    AsyncSession,
-)
+# DATABASE_URL = "postgresql+asyncpg://sandipbera35:1221@localhost:5432/explainerai"
+DATABASE_URL = "postgresql+psycopg2://sandipbera35:1221@localhost:5432/explainerai"
 
 
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=True,
-    future=True,
-)
+from sqlalchemy.engine import create_engine
 
-AsyncSessionLocal = async_sessionmaker(
-    bind=engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-)
-async def get_db():
-    async with AsyncSessionLocal() as session:
-        yield session
+from sqlalchemy.orm import sessionmaker
+
+engine = create_engine(DATABASE_URL, echo=True, future=True)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

@@ -1,12 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel,ConfigDict, EmailStr
 from typing import Optional
 from datetime import datetime
 
-class User(BaseModel):
-    name: str
-    email: str
+class UserBase(BaseModel):
+    name: str 
+    email: EmailStr
     guid: str
-    password: str
     is_active: Optional[bool] = True
     created_at: Optional[datetime] = datetime.utcnow()
     updated_at: Optional[datetime] = datetime.utcnow()
@@ -20,35 +19,70 @@ class User(BaseModel):
     linkedin: Optional[str] = None
     instagram: Optional[str] = None
     facebook: Optional[str] = None
-    
-    class Config:
-        orm_mode = True
-        from_attributes = True
-from pydantic import BaseModel
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserCreate(UserBase):
+    password: str
+
+
+class UserResponse(UserBase):
+    pass
+
+
+User = UserCreate
+
+
+from datetime import datetime
 from typing import Optional
 
+from pydantic import BaseModel, ConfigDict
 
-class ProfileImage(BaseModel):
+
+class MediaFile(BaseModel):
 
     id: str
     file_name: str
+    user_id: str
+
+    size: int
+
+    mime_type: str
+    extension: str
+
+    created_at: datetime
+    updated_at: datetime
+
     path: str
+
     is_public: bool
 
+    model_config = ConfigDict(
+        from_attributes=True
+    )
 
-class CurrentUser(BaseModel):
+
+class ProfileResponse(BaseModel):
 
     id: str
+
     first_name: str
     last_name: str
+
     gender: str
 
+    birth_date: datetime
+
     user_name: str
+
     mobile_no: str
-    email_id: str
 
-    profile_image: Optional[ProfileImage] = None
+    email_id: EmailStr
 
-    class Config:
-        orm_mode = True
-        from_attributes = True
+    profile_image: Optional[MediaFile] = None
+
+    cover_image: Optional[MediaFile] = None
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )

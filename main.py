@@ -7,28 +7,30 @@ from database.base import Base
 from sqlalchemy import text
 from database.schemas import users
 from routers.user_router import userRouter 
+from routers.ai_router import aiRouter
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
+from sqlalchemy import text
+Base.metadata.create_all(bind=engine)
+with engine.connect() as conn:
 
-    async with engine.begin() as conn:
+    conn.execute(text("""
+        ALTER TABLE users
+        ADD COLUMN IF NOT EXISTS guid VARCHAR
+    """))
 
-        await conn.run_sync(Base.metadata.create_all)
-    print()
-    print("Database connected")
-    print()
-
-    yield
-
-    print("Application shutdown")
+    conn.commit()
 
 
-app = FastAPI(
-    lifespan=lifespan
-)
+app = FastAPI( debug=True, title="ExplainerAI API", description="API for ExplainerAI application", version="1.0.0" )
 
-app.include_router(userRouter)
+app.include_router(userRouter, prefix="/api/v1", tags=["Users"])
+app.include_router(aiRouter, prefix="/api/v1", tags=["AI"])
 @app.get("/")
-async def root():
+def root():
     return {"message": "FastAPI PostgreSQL Connected"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
